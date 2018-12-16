@@ -6,6 +6,8 @@
 
 class MPC {
  public:
+  // This is the length from front to CoG that has a similar radius.
+  const double Lf = 2.67;
   MPC();
 
   virtual ~MPC();
