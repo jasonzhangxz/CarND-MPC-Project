@@ -119,23 +119,25 @@ int main() {
           double actuator_delay = 0.1;
 
           //initial states
-          double x0 = 0;
-          double y0 = 0;
-          double psi0 = 0;
-          double cte0 = coeffs[0];
-          double epsi0 = -atan(coeffs[1]);
+          double x0,y0,psi0,cte0,epsi0;
+          x0 = 0;
+          y0 = 0;
+          psi0 = 0;
+          cte0 = coeffs[0];
+          epsi0 = -atan(coeffs[1]);
 
           //state after actuator delay
-          double x_delayed = x0 + (v*cos(psi0)*actuator_delay);
-          double y_delayed = y0 + (v*sin(psi0)*actuator_delay);
-          double psi_delayed = psi0 - (v*delta*actuator_delay/mpc.Lf);
-          double v_delayed = v + a*actuator_delay;
-          double cte_delayed = cte0 + (v*sin(epsi0)*actuator_delay);
-          double epsi_delayed = epsi0 - (v*delta*actuator_delay/mpc.Lf);
+          double x_t, y_t, psi_t, v_t, cte_t, epsi_t;
+          x_t = x0 + (v*cos(psi0)*actuator_delay);
+          y_t = y0 + (v*sin(psi0)*actuator_delay);
+          psi_t = psi0 - (v*delta*actuator_delay/mpc.Lf);
+          v_t = v + a*actuator_delay;
+          cte_t = cte0 + (v*sin(epsi0)*actuator_delay);
+          epsi_t = epsi0 - (v*delta*actuator_delay/mpc.Lf);
 
           //define the state vector
           Eigen::VectorXd state(6);
-          state << x_delayed,y_delayed,psi_delayed,v_delayed,cte_delayed,epsi_delayed;
+          state << x_t,y_t,psi_t,v_t,cte_t,epsi_t;
 
           //MPC solver
           auto vars = mpc.Solve(state,coeffs);
