@@ -90,10 +90,7 @@ class FG_eval {
       AD<double> epsi0 = vars[epsi_start+i-1];
       AD<double> a = vars[a_start+i-1];
       AD<double> delta = vars[delta_start+i-1];
-      // if(i>1){ //use previous value to account for latency
-      //   a = vars[a_start+i-2];
-      //   delta = vars[delta_start+i-2];
-      // }
+
       AD<double> f0 = coeffs[0] + coeffs[1]*x0 + coeffs[2]*CppAD::pow(x0,2) + coeffs[3]*CppAD::pow(x0,3);
       AD<double> psides0 = CppAD::atan(coeffs[1] + 2*coeffs[2]*x0 + 3*coeffs[3]*CppAD::pow(x0,2));
 
@@ -140,12 +137,12 @@ std::vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
   // TODO: Set lower and upper limits for variables.
 
   //set initial values
-  // vars[x_start] = state[0];
-  // vars[y_start] = state[1];
-  // vars[psi_start] = state[2];
-  // vars[v_start] = state[3];
-  // vars[cte_start] = state[4];
-  // vars[epsi_start] = state[5];
+  vars[x_start] = state[0];
+  vars[y_start] = state[1];
+  vars[psi_start] = state[2];
+  vars[v_start] = state[3];
+  vars[cte_start] = state[4];
+  vars[epsi_start] = state[5];
 
   //set all non-actuators upper and lower limits
   for(unsigned int i=0;i<delta_start;i++){
@@ -154,9 +151,11 @@ std::vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
   }
 
   //set upper and lower limits of delta to -25 and 25 degress
+  double lowerbound = -25.0/180 * M_PI;
+  double upperbound = 25.0/180 * M_PI;
   for(unsigned int i=delta_start;i<a_start;i++){
-    vars_lowerbound[i] = -0.436332 * Lf;//-25/180 * M_PI * Lf; /
-    vars_upperbound[i] =  0.436332 * Lf;//25/180 * M_PI * Lf;
+    vars_lowerbound[i] = lowerbound;
+    vars_upperbound[i] = upperbound;
   }
 
   //set acceleration and decceleration limits

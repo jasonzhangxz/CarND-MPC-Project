@@ -131,7 +131,7 @@ int main() {
           double psi_delayed = psi0 - (v*delta*actuator_delay/mpc.Lf);
           double v_delayed = v + a*actuator_delay;
           double cte_delayed = cte0 + (v*sin(epsi0)*actuator_delay);
-          double epsi_delayed = epsi0 - (v*atan(coeffs[1])*actuator_delay/mpc.Lf);
+          double epsi_delayed = epsi0 - (v*delta*actuator_delay/mpc.Lf);
 
           //define the state vector
           Eigen::VectorXd state(6);
