@@ -58,7 +58,9 @@ The MPC controller is implemented in [./src/MPC.cpp](./src/PID.cpp). It utilizes
 
 ### The Model
 The MPC model uses a kinematic model without taking into account of the complex road and tire interactions. The model equations are below:
+
 ![Equations][image1]
+
 The model has 6 state variables:
 - x : car's position x
 - y : car's position y
