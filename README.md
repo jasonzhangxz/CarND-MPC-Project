@@ -49,13 +49,16 @@ is the vehicle offset of a straight line (reference). If the MPC implementation 
 3. For visualization this C++ [matplotlib wrapper](https://github.com/lava/matplotlib-cpp) could be helpful.)
 4.  Tips for setting up your environment are available [here](https://classroom.udacity.com/nanodegrees/nd013/parts/40f38239-66b6-46ec-ae68-03afd8a601c8/modules/0949fca6-b379-42af-a919-ee50aa304e6a/lessons/f758c44c-5e40-4e01-93b5-1a82aa4e044f/concepts/23d376c7-0195-4276-bdf0-e02f1f3c665d)
 
+[//]: # (Image References)
+
+[image1]: ./img/equations.png "Equations"
 
 ## Implementation
 The MPC controller is implemented in [./src/MPC.cpp](./src/PID.cpp). It utilizes the IPOPT and CppAD libraries to calculate the optimal trajectory and the corresponding actuation commands i.e. the throttle/brake and steering angle, to minimize the cost function of cross track error, steering angle error and penalization of roughness .
 
 ### The Model
 The MPC model uses a kinematic model without taking into account of the complex road and tire interactions. The model equations are below:
-[./img/equations.png](./img/equations.png)
+![Equations][image1]
 The model has 6 state variables:
 - x : car's position x
 - y : car's position y
