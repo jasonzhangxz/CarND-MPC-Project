@@ -2,6 +2,8 @@
 Self-Driving Car Engineer Nanodegree Program
 
 ---
+## OVerview
+This project is to build a MPC controller and make the vehicle drive successfully around the track without going out of the track.
 
 ## Dependencies
 
@@ -38,14 +40,6 @@ Self-Driving Car Engineer Nanodegree Program
 3. Compile: `cmake .. && make`
 4. Run it: `./mpc`.
 
-## Build with Docker-Compose
-The docker-compose can run the project into a container
-and exposes the port required by the simulator to run.
-
-1. Clone this repo.
-2. Build image: `docker-compose build`
-3. Run Container: `docker-compose up`
-4. On code changes repeat steps 2 and 3.
 
 ## Tips
 
@@ -54,63 +48,39 @@ is the vehicle offset of a straight line (reference). If the MPC implementation 
 2. The `lake_track_waypoints.csv` file has waypoints of the lake track. This could fit polynomials and points and see of how well your model tracks curve. NOTE: This file might be not completely in sync with the simulator so your solution should NOT depend on it.
 3. For visualization this C++ [matplotlib wrapper](https://github.com/lava/matplotlib-cpp) could be helpful.)
 4.  Tips for setting up your environment are available [here](https://classroom.udacity.com/nanodegrees/nd013/parts/40f38239-66b6-46ec-ae68-03afd8a601c8/modules/0949fca6-b379-42af-a919-ee50aa304e6a/lessons/f758c44c-5e40-4e01-93b5-1a82aa4e044f/concepts/23d376c7-0195-4276-bdf0-e02f1f3c665d)
-5. **VM Latency:** Some students have reported differences in behavior using VM's ostensibly a result of latency.  Please let us know if issues arise as a result of a VM environment.
 
-## Editor Settings
 
-We have kept editor configuration files out of this repo to
-keep it as simple and environment agnostic as possible. However, we recommend
-using the following settings:
+## Implementation
+The MPC controller is implemented in [./src/MPC.cpp](./src/PID.cpp). It utilizes the IPOPT and CppAD libraries to calculate the optimal trajectory and the corresponding actuation commands i.e. the throttle/brake and steering angle, to minimize the cost function of cross track error, steering angle error and penalization of roughness .
 
-* indent using spaces
-* set tab width to 2 spaces (keeps the matrices in source code aligned)
+### The Model
+The MPC model uses a kinematic model without taking into account of the complex road and tire interactions. The model equations are below:
+[./img/equations.png](./img/equations.png)
+The model has 6 state variables:
+- x : car's position x
+- y : car's position y
+- psi : car's heading angle
+- v : car's velocity
+- cte : cross track error
+- epsi : heading angle error
+The variable Lf is the length from front to center of gravity, it is given by Udacity sample code.
+The mode has two outputs:
+- a : acceleration/deceleration value
+- delta: steering angle
 
-## Code Style
+The objective is to find the best a and delta values to minimize the cost function of multiple factors:
+- cross track error and heading angle error
+- penalization of uses of actuations
+- penalization of rapid changes
 
-Please (do your best to) stick to [Google's C++ style guide](https://google.github.io/styleguide/cppguide.html).
+### Timestep Length and Elapsed Duration (N & dt)
+Number of points (N) and time interval (dt) together define the prediction horizon. With too many points, the model will become slower easily. However, too less points will not predict a good curve. This project uses the Udacity suggested values: N = 10; dt = 0.1;
 
-## Project Instructions and Rubric
+### Polynomial Fitting and MPC Preprocessing
+In this project, the provided waypoints are transformed to the vehicle coordinates first, then fitted a 3rd order polynomial.
 
-Note: regardless of the changes you make, your project must be buildable using
-cmake and make!
+### Model Predictive Control with Latency
+To take care of the actuator latency, this project calculates and uses the delayed states to feed into the MPC solver, instead of using the initial values.
 
-More information is only accessible by people who are already enrolled in Term 2
-of CarND. If you are enrolled, see [the project page](https://classroom.udacity.com/nanodegrees/nd013/parts/40f38239-66b6-46ec-ae68-03afd8a601c8/modules/f1820894-8322-4bb3-81aa-b26b3c6dcbaf/lessons/b1ff3be0-c904-438e-aad3-2b5379f0e0c3/concepts/1a2255a0-e23c-44cf-8d41-39b8a3c8264a)
-for instructions and the project rubric.
-
-## Hints!
-
-* You don't have to follow this directory structure, but if you do, your work
-  will span all of the .cpp files here. Keep an eye out for TODOs.
-
-## Call for IDE Profiles Pull Requests
-
-Help your fellow students!
-
-We decided to create Makefiles with cmake to keep this project as platform
-agnostic as possible. We omitted IDE profiles to ensure
-students don't feel pressured to use one IDE or another.
-
-However! I'd love to help people get up and running with their IDEs of choice.
-If you've created a profile for an IDE you think other students would
-appreciate, we'd love to have you add the requisite profile files and
-instructions to ide_profiles/. For example if you wanted to add a VS Code
-profile, you'd add:
-
-* /ide_profiles/vscode/.vscode
-* /ide_profiles/vscode/README.md
-
-The README should explain what the profile does, how to take advantage of it,
-and how to install it.
-
-Frankly, I've never been involved in a project with multiple IDE profiles
-before. I believe the best way to handle this would be to keep them out of the
-repo root to avoid clutter. Most profiles will include
-instructions to copy files to a new location to get picked up by the IDE, but
-that's just a guess.
-
-One last note here: regardless of the IDE used, every submitted project must
-still be compilable with cmake and make./
-
-## How to write a README
-A well written README file can enhance your project and portfolio and develop your abilities to create professional README files by completing [this free course](https://www.udacity.com/course/writing-readmes--ud777).
+## Simulation
+Here is a video shows the car successfully drove one lap using the implemented MPC controller: [./videos/mpc.mp4](./videos/mpc.mp4)
