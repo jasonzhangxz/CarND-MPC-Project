@@ -2,6 +2,7 @@
 #include <cppad/cppad.hpp>
 #include <cppad/ipopt/solve.hpp>
 #include "Eigen-3.3/Eigen/Core"
+#include <math.h>
 
 using CppAD::AD;
 
@@ -20,8 +21,7 @@ double dt = 0.1;
 //
 // This is the length from front to CoG that has a similar radius.
 const double Lf = 2.67;
-
-const double ref_v = 100;
+const double ref_v = 70;
 
 size_t x_start = 0;
 size_t y_start = x_start + N;
@@ -48,8 +48,8 @@ class FG_eval {
 
     //Define cost related to the reference state
     for(unsigned int i=0;i<N;i++){
-      fg[0] += 3000*CppAD::pow(vars[cte_start+i],2);
-      fg[0] += 3000*CppAD::pow(vars[epsi_start+i],2);
+      fg[0] += 1000*CppAD::pow(vars[cte_start+i],2);
+      fg[0] += 1000*CppAD::pow(vars[epsi_start+i],2);
       fg[0] += CppAD::pow(vars[v_start+i]-ref_v,2);
     }
 
@@ -61,8 +61,8 @@ class FG_eval {
 
     //smooth the actuations
     for(unsigned int i=0;i<N-2;i++){
-      fg[0] += 200*CppAD::pow(vars[delta_start+i+1] - vars[delta_start+i],2);
-      fg[0] += 50*CppAD::pow(vars[a_start+i+1] - vars[a_start+i],2);
+      fg[0] += 250000*CppAD::pow(vars[delta_start+i+1] - vars[delta_start+i],2);
+      fg[0] += 5000*CppAD::pow(vars[a_start+i+1] - vars[a_start+i],2);
     }
 
     //setup constraints
@@ -155,8 +155,8 @@ std::vector<double> MPC::Solve(Eigen::VectorXd state, Eigen::VectorXd coeffs) {
 
   //set upper and lower limits of delta to -25 and 25 degress
   for(unsigned int i=delta_start;i<a_start;i++){
-    vars_lowerbound[i] = -25/180 * M_PI * Lf;
-    vars_upperbound[i] =  25/180 * M_PI * Lf;
+    vars_lowerbound[i] = -0.436332 * Lf;//-25/180 * M_PI * Lf; /
+    vars_upperbound[i] =  0.436332 * Lf;//25/180 * M_PI * Lf;
   }
 
   //set acceleration and decceleration limits
