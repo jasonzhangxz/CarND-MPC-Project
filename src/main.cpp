@@ -102,26 +102,18 @@ int main() {
           *
           */
           //transfor to vehicle coordinate
-          size_t n_waypoints = ptsx.size();
-          // Eigen::VectorXd ptsx_transformed(n_waypoints);
-          // Eigen::VectorXd ptsy_transformed(n_waypoints);
-          // for(unsigned int i=0;i<n_waypoints;i++){
-          //   double dx = ptsx[i] - px;
-          //   double dy = ptsy[i] - py;
-          //   ptsx_transformed(i) = dx*cos(-psi) - dy*sin(-psi);
-          //   ptsy_transformed(i) = dx*sin(-psi) + dy*cos(-psi);
-          // }
-          auto ptsx_transformed = Eigen::VectorXd(n_waypoints);
-          auto ptsy_transformed = Eigen::VectorXd(n_waypoints);
-          for (unsigned int i = 0; i < n_waypoints; i++ ) {
-            double dX = ptsx[i] - px;
-            double dY = ptsy[i] - py;
-            double minus_psi = 0.0 - psi;
-            ptsx_transformed( i ) = dX * cos( minus_psi ) - dY * sin( minus_psi );
-            ptsy_transformed( i ) = dX * sin( minus_psi ) + dY * cos( minus_psi );
+          size_t num_waypoints = ptsx.size();
+          Eigen::VectorXd ptsx_vehicle(num_waypoints);
+          Eigen::VectorXd ptsy_vehicle(num_waypoints);
+          for(unsigned int i=0;i<num_waypoints;i++){
+            double dx = ptsx[i] - px;
+            double dy = ptsy[i] - py;
+            ptsx_vehicle(i) = dx*cos(-psi) - dy*sin(-psi);
+            ptsy_vehicle(i) = dx*sin(-psi) + dy*cos(-psi);
           }
+
           //fit polynomial 3 orders
-          auto coeffs = polyfit(ptsx_transformed,ptsy_transformed,3);
+          auto coeffs = polyfit(ptsx_vehicle,ptsy_vehicle,3);
 
           //actuator delay in seconds
           double actuator_delay = 0.1;
@@ -134,16 +126,16 @@ int main() {
           double epsi0 = -atan(coeffs[1]);
 
           //state after actuator delay
-          double x_delay = x0 + (v*cos(psi0)*actuator_delay);
-          double y_delay = y0 + (v*sin(psi0)*actuator_delay);
-          double psi_delay = psi0 - (v*delta*actuator_delay/mpc.Lf);
-          double v_delay = v + a*actuator_delay;
-          double cte_delay = cte0 + (v*sin(epsi0)*actuator_delay);
-          double epsi_delay = epsi0 - (v*atan(coeffs[1])*actuator_delay/mpc.Lf);
+          double x_delayed = x0 + (v*cos(psi0)*actuator_delay);
+          double y_delayed = y0 + (v*sin(psi0)*actuator_delay);
+          double psi_delayed = psi0 - (v*delta*actuator_delay/mpc.Lf);
+          double v_delayed = v + a*actuator_delay;
+          double cte_delayed = cte0 + (v*sin(epsi0)*actuator_delay);
+          double epsi_delayed = epsi0 - (v*atan(coeffs[1])*actuator_delay/mpc.Lf);
 
           //define the state vector
           Eigen::VectorXd state(6);
-          state << x_delay,y_delay,psi_delay,v_delay,cte_delay,epsi_delay;
+          state << x_delayed,y_delayed,psi_delayed,v_delayed,cte_delayed,epsi_delayed;
 
           //MPC solver
           auto vars = mpc.Solve(state,coeffs);
@@ -180,10 +172,9 @@ int main() {
           vector<double> next_x_vals;
           vector<double> next_y_vals;
 
-          double poly_inc = 2.5;
-          int num_points = 25;
-          for ( int i = 0; i < num_points; i++ ) {
-            double x = poly_inc * i;
+          double arc_increment = 3;
+          for ( int i = 0; i < 20; i++ ) {
+            double x = arc_increment * i;
             next_x_vals.push_back( x );
             next_y_vals.push_back( polyeval(coeffs, x) );
           }
