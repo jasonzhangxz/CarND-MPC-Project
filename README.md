@@ -2,8 +2,53 @@
 Self-Driving Car Engineer Nanodegree Program
 
 ---
-## OVerview
+## Overview
 This project is to build a MPC controller and make the vehicle drive successfully around the track without going out of the track.
+
+
+[//]: # (Image References)
+
+[image1]: ./img/equations.png "Equations"
+
+## Implementation
+The MPC controller is implemented in [./src/MPC.cpp](./src/PID.cpp). It utilizes the IPOPT and CppAD libraries to calculate the optimal trajectory and the corresponding actuation commands i.e. the throttle/brake and steering angle, to minimize the cost function of cross track error, steering angle error and penalization of roughness .
+
+### The Model
+The MPC model uses a kinematic model without taking into account of the complex road and tire interactions. The model equations are below:
+
+![Equations][image1]
+
+The model has 6 state variables:
+- x : car's position x
+- y : car's position y
+- psi : car's heading angle
+- v : car's velocity
+- cte : cross track error
+- epsi : heading angle error
+The variable Lf is the length from front to center of gravity, it is given by Udacity sample code.
+The model has two outputs:
+- a : acceleration/deceleration value
+- delta: steering angle
+
+The objective is to find the best a and delta values to minimize the cost function of multiple factors:
+- cross track error and heading angle error
+- penalization of uses of actuations
+- penalization of rapid changes
+
+### Timestep Length and Elapsed Duration (N & dt)
+Number of points (N) and time interval (dt) together define the prediction horizon. With too many points, the model will become slower easily. However, too less points will not predict a good curve. This project uses the Udacity suggested values: N = 10; dt = 0.1;
+
+### Polynomial Fitting and MPC Preprocessing
+In this project, the provided waypoints are transformed to the vehicle coordinates first, then fitted a 3rd order polynomial.
+
+### Model Predictive Control with Latency
+To take care of the actuator latency, this project calculates and uses the delayed states to feed into the MPC solver, instead of using the initial values.
+
+## Simulation
+Here is a video shows the car successfully drove one lap using the implemented MPC controller: [./videos/mpc.mp4](./videos/mpc.mp4)
+
+
+
 
 ## Dependencies
 
@@ -48,44 +93,3 @@ is the vehicle offset of a straight line (reference). If the MPC implementation 
 2. The `lake_track_waypoints.csv` file has waypoints of the lake track. This could fit polynomials and points and see of how well your model tracks curve. NOTE: This file might be not completely in sync with the simulator so your solution should NOT depend on it.
 3. For visualization this C++ [matplotlib wrapper](https://github.com/lava/matplotlib-cpp) could be helpful.)
 4.  Tips for setting up your environment are available [here](https://classroom.udacity.com/nanodegrees/nd013/parts/40f38239-66b6-46ec-ae68-03afd8a601c8/modules/0949fca6-b379-42af-a919-ee50aa304e6a/lessons/f758c44c-5e40-4e01-93b5-1a82aa4e044f/concepts/23d376c7-0195-4276-bdf0-e02f1f3c665d)
-
-[//]: # (Image References)
-
-[image1]: ./img/equations.png "Equations"
-
-## Implementation
-The MPC controller is implemented in [./src/MPC.cpp](./src/PID.cpp). It utilizes the IPOPT and CppAD libraries to calculate the optimal trajectory and the corresponding actuation commands i.e. the throttle/brake and steering angle, to minimize the cost function of cross track error, steering angle error and penalization of roughness .
-
-### The Model
-The MPC model uses a kinematic model without taking into account of the complex road and tire interactions. The model equations are below:
-
-![Equations][image1]
-
-The model has 6 state variables:
-- x : car's position x
-- y : car's position y
-- psi : car's heading angle
-- v : car's velocity
-- cte : cross track error
-- epsi : heading angle error
-The variable Lf is the length from front to center of gravity, it is given by Udacity sample code.
-The mode has two outputs:
-- a : acceleration/deceleration value
-- delta: steering angle
-
-The objective is to find the best a and delta values to minimize the cost function of multiple factors:
-- cross track error and heading angle error
-- penalization of uses of actuations
-- penalization of rapid changes
-
-### Timestep Length and Elapsed Duration (N & dt)
-Number of points (N) and time interval (dt) together define the prediction horizon. With too many points, the model will become slower easily. However, too less points will not predict a good curve. This project uses the Udacity suggested values: N = 10; dt = 0.1;
-
-### Polynomial Fitting and MPC Preprocessing
-In this project, the provided waypoints are transformed to the vehicle coordinates first, then fitted a 3rd order polynomial.
-
-### Model Predictive Control with Latency
-To take care of the actuator latency, this project calculates and uses the delayed states to feed into the MPC solver, instead of using the initial values.
-
-## Simulation
-Here is a video shows the car successfully drove one lap using the implemented MPC controller: [./videos/mpc.mp4](./videos/mpc.mp4)
