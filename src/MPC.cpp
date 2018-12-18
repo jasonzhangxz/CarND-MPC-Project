@@ -48,21 +48,21 @@ class FG_eval {
 
     //Define cost related to the reference state
     for(unsigned int i=0;i<N;i++){
-      fg[0] += 1000*CppAD::pow(vars[cte_start+i],2);
-      fg[0] += 1000*CppAD::pow(vars[epsi_start+i],2);
+      fg[0] += 800*CppAD::pow(vars[cte_start+i],2);
+      fg[0] += 800*CppAD::pow(vars[epsi_start+i],2);
       fg[0] += CppAD::pow(vars[v_start+i]-ref_v,2);
     }
 
     //minimize the use of actuators
     for(unsigned int i=0;i<N-1;i++){
-      fg[0] += 50*CppAD::pow(vars[delta_start+i],2);
+      fg[0] += 100*CppAD::pow(vars[delta_start+i],2);
       fg[0] += 50*CppAD::pow(vars[a_start+i],2);
     }
 
     //smooth the actuations
     for(unsigned int i=0;i<N-2;i++){
-      fg[0] += 250000*CppAD::pow(vars[delta_start+i+1] - vars[delta_start+i],2);
-      fg[0] += 5000*CppAD::pow(vars[a_start+i+1] - vars[a_start+i],2);
+      fg[0] += 100000*CppAD::pow(vars[delta_start+i+1] - vars[delta_start+i],2); //especially smooth the steering angle 
+      fg[0] += 2000*CppAD::pow(vars[a_start+i+1] - vars[a_start+i],2);
     }
 
     //setup constraints
