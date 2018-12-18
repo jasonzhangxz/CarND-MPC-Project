@@ -25,6 +25,7 @@ The model has 6 state variables:
 - v : car's velocity
 - cte : cross track error
 - epsi : heading angle error
+
 *Note:The variable Lf is the length from front to center of gravity, it is given by Udacity sample code.
 
 The model has two outputs:
