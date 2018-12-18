@@ -30,7 +30,7 @@ The model has two outputs:
 - a : acceleration/deceleration value
 - delta: steering angle
 
-The objective is to find the best a and delta values to minimize the cost function of multiple factors:
+The objective is to find the best acceleration/deceleration (a) and steering angle (delta) values to minimize the cost function which includes multiple factors:
 - cross track error and heading angle error
 - penalization of uses of actuations
 - penalization of rapid changes
